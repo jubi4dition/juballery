@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Simple Gallery</title>
+  <title>Juballery</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <!-- Le styles -->
   <link href="../assets/css/bootstrap.css" rel="stylesheet">
