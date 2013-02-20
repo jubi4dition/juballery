@@ -2,15 +2,10 @@
 
 class Home_Controller extends Base_Controller {
 
-    public function __construct()
-    {
-        parent::__construct();
-        $this->filter('before', 'auth')->only(array('image', 'like'));
-    }
-
     public function action_index()
     {
         $galleries = Galleries::getAll();
+
         foreach ($galleries as $gallery) {
             $gallery->thumb = Images::getFirst($gallery->id);
         }
@@ -21,8 +16,13 @@ class Home_Controller extends Base_Controller {
 
     public function action_gallery($galleryID)
     {
+        if (Auth::guest()) {
+            Session::put('lastURL', URI::full());
+        }
+
         Galleries::incrementViews($galleryID);
         $images = Images::fromGallery($galleryID);
+
         return View::make('home.gallery')
             ->with('images', $images)
             ->with('galleryID', $galleryID);
@@ -30,6 +30,11 @@ class Home_Controller extends Base_Controller {
 
     public function action_image($galleryID, $imageID)
     {
+        if (Auth::guest()) {
+            Session::put('lastURL', URI::full());
+            return Redirect::to('login');
+        }
+
         $image = Images::get($imageID);
         
         if ($image != null) {
@@ -49,6 +54,10 @@ class Home_Controller extends Base_Controller {
 
     public function action_like()
     {
+        if (Auth::guest()) {
+            return;
+        }
+
         $imageID = Input::get('imageid');
         $userID = Auth::user()->id;
         
@@ -81,42 +90,6 @@ class Home_Controller extends Base_Controller {
         Users::password($userID, $password);
 
         return Response::json(array('success' => true));
-    }
-
-
-    public function action_test()
-    {
-        //return Str::random(32);
-        //$allowedExtensions = array('jpg');
-        // max file size in bytes
-        //$sizeLimit = 10 * 1024 * 1024;
-        //$uploader = new qqFileUploader($allowedExtensions);
-        //Fineuploader::init();
-        //$name = Fineuploader::name();
-        //$dir = '6';
-        //echo path('public').'images'.DIRECTORY_SEPARATOR;
-        //File::mkdir(path('public').'images/'.$dir);
-        /*$credentials = array('username' => 'admin@mail.com', 'password' => 'password');
-
-        if (Auth::attempt($credentials)) {
-            echo "Logged in!";
-        } else {
-            echo "Not logged in!";
-        }*/
-        /*Bundle::start('resizer');
-        
-        //$img = File::get(path('public').'images/2/messi003.jpg');
-        $success = Resizer::open( path('public').'images/2/messi003.jpg' )
-            ->resize( 300 , 300 , 'landscape' )
-            ->save( path('public').'images/hh.jpg' , 90 );
-
-        if ( $success ) {
-            return 'woohoo';
-        } else {
-            return 'lame';
-        }*/
-        //return DB::table('galleries')->where_id(6)->delete();
-        //return File::rmdir(path('public').'images/6');
     }
 
 }

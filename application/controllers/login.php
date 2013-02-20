@@ -29,13 +29,16 @@ class Login_Controller extends Base_Controller {
         $credentials = array('username' => $email, 'password' => $password);
         
         if (Auth::attempt($credentials)) {
+            $lastURL    = Session::has('lastURL') ? Session::get('lastURL') : 'home';
+            Session::forget('lastURL');
+
             if (Users::isAdmin(Auth::user()->id)) {
                 Session::put('isAdmin', true);
             } else {
                 Session::put('isAdmin', false);
             }
 
-            return Redirect::to('home');
+            return Redirect::to($lastURL);
         } else {
             return Redirect::to('login');
         }
