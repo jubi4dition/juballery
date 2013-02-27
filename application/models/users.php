@@ -14,8 +14,12 @@ class Users {
 
     public static function create($email, $password)
     {
-        $hashedPassword = Hash::make($password);
-        return DB::table('users')->insert(array('email' => $email, 'password' => $hashedPassword));
+        if (DB::table('users')->where_email($email)->first() == null) {
+            $hashedPassword = Hash::make($password);
+            return DB::table('users')->insert(array('email' => $email, 'password' => $hashedPassword));
+        } else {
+            return false;
+        }
     }
 
     public static function delete($id)

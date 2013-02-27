@@ -22,9 +22,17 @@ class Signup_Controller extends Base_Controller {
 
         $email = Input::get('email');
         $password = Input::get('password');
-        Users::create($email, $password);
+        $created = Users::create($email, $password);
 
-        return Redirect::to('home');
+        if (Request::ajax()) {
+            if ($created) {
+                return Response::json(array('success' => true));
+            } else {
+                return Response::json(array('success' => false));
+            }
+        } else {
+            return Redirect::to('home');
+        } 
     }
 
 }
